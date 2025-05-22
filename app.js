@@ -6,13 +6,25 @@ const path = require('path');
 
 const app = express();
 
-
+// Configure allowed origins
+const allowedOrigins = [
+  'https://clinic-token-frontend.vercel.app',
+  'http://localhost:3000' // for local development
+];
 // Enable CORS
 app.use(cors({
-  origin: ['http://localhost:3000', 'http://localhost:5000'],
-  methods: ['GET', 'POST', 'PATCH', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
-  credentials: true
+  origin: function(origin, callback) {
+    // allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.indexOf(origin) === -1) {
+      const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
+      return callback(new Error(msg), false);
+    }
+    return callback(null, true);
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
 // Middleware
